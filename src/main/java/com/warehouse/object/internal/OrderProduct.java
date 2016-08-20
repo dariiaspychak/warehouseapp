@@ -28,7 +28,7 @@ public class OrderProduct {
 		this.quantity = quantity;
 	}
 	
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = CascadeType.MERGE)
 	@JoinColumn(name = "order_id")
 	public Order getOrder() {
 		return order;
@@ -37,7 +37,7 @@ public class OrderProduct {
 		this.order = order;
 	}
 	
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = CascadeType.MERGE)
 	@JoinColumn(name = "product_id")
 	public Product getProduct() {
 		return product;

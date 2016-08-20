@@ -7,7 +7,9 @@ public enum ExternalOrderStatus {
 
 	public static ExternalOrderStatus convert(OrderStatus orderStatus) {
 		switch (orderStatus) {
-		case CREATED:
+		case EMPTY:
+			return OPEN;
+		case READY:
 			return OPEN;
 		case SUBMITTED:
 			return RECEIVED;

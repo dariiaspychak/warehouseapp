@@ -3,6 +3,7 @@ package com.warehouse.object.internal;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -11,18 +12,16 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.GenericGenerator;
-
 @Entity(name = "orders")
 @Table(name = "orders")
 public class Order {
 
-	private String id;
+	private int id;
 	private OrderStatus orderStatus;
 
 	private Set<OrderProduct> orderProduct = new HashSet<OrderProduct>(0);
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "order", cascade = CascadeType.MERGE)
 	public Set<OrderProduct> getOrderProduct() {
 		return orderProduct;
 	}
@@ -32,17 +31,16 @@ public class Order {
 	}
 
 	@Id
-	@GeneratedValue(generator = "uuid")
-	@GenericGenerator(name = "uuid", strategy = "uuid")
+	@GeneratedValue
 	@Column(name = "order_id")
-	public String getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(int id) {
 		this.id = id;
 	}
-
+	@Column(name = "order_status")
 	public OrderStatus getOrderStatus() {
 		return orderStatus;
 	}
