@@ -110,10 +110,9 @@ public class OrderDaoTest extends TestCase {
 		OrderChangeRequest orderChangeRequestRemoveSecond = new OrderChangeRequest(product.getId(), 3, OrderCommand.REMOVE);
 		
 		orderDaoUnderTest.changeOrder(order.getId(), orderChangeRequestRemoveSecond);
-		entityManager.refresh(orderProduct);
+		entityManager.refresh(order);
 
-		assertEquals(1,orderProductSet.size());
-		assertEquals(0, orderProduct.getQuantity());
+		assertEquals(0,order.getOrderProduct().size());
 		assertEquals(OrderStatus.EMPTY, order.getOrderStatus());
 	}
 	

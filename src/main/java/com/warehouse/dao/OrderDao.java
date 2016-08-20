@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 
 import com.warehouse.object.internal.Order;
 import com.warehouse.object.internal.OrderChangeRequest;
-import com.warehouse.object.internal.OrderCommand;
 import com.warehouse.object.internal.OrderProduct;
 import com.warehouse.object.internal.OrderStatus;
 import com.warehouse.object.internal.Product;
@@ -38,7 +37,7 @@ public class OrderDao {
 	 * @return new order.
 	 */
 	public Order createOrder() {
-		EntityTransaction transaction = createTransaction();
+		EntityTransaction transaction = getTransaction();
 		Order order = new Order();
 		order.setOrderStatus(OrderStatus.EMPTY);
 		entityManager.persist(order);
@@ -57,7 +56,6 @@ public class OrderDao {
 	 *         OrderProduct table
 	 */
 	private List<OrderProduct> getOrderProductList(Order order, Product product) {
-		createTransaction();
 		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<OrderProduct> criteriaQuery = criteriaBuilder.createQuery(OrderProduct.class);
 		Root<OrderProduct> root = criteriaQuery.from(OrderProduct.class);
@@ -79,29 +77,28 @@ public class OrderDao {
 	 * @return changed order.
 	 */
 	public Order changeOrder(int orderId, OrderChangeRequest orderChangeRequest) {
-		createTransaction();
-		String productId = orderChangeRequest.getProductId();
 		Order order = entityManager.find(Order.class, orderId);
-		Product product = entityManager.find(Product.class, productId);
-		List<OrderProduct> orderProducts = getOrderProductList(order, product);
+		Product product = entityManager.find(Product.class, orderChangeRequest.getProductId());
 
-		OrderProduct orderProduct;
-		if (orderProducts.isEmpty() && !orderChangeRequest.getOrderCommand().equals(OrderCommand.REMOVE)) {
-			orderProduct = new OrderProduct(order, product, orderChangeRequest.getQuantity());
-
-			if (order.getOrderStatus().equals(OrderStatus.EMPTY) && orderChangeRequest.getQuantity() > 0) {
-				order.setOrderStatus(OrderStatus.READY);
-				entityManager.merge(order);
-			}
-			entityManager.persist(orderProduct);
-			entityManager.getTransaction().commit();
-		} else if (!orderProducts.isEmpty()) {
-			orderProduct = orderProducts.get(0);
-			OrderProduct changedOrderProduct = applyRequestCommand(orderProduct, orderChangeRequest);
-			entityManager.getTransaction().commit();
-		}
-		entityManager.refresh(order);
+		applyRequestCommand(order, product, orderChangeRequest);
+		applyStatus(order);
 		return order;
+	}
+
+	private void applyStatus(Order order) {
+		getTransaction();
+		int overallQuantity = 0;
+		for(OrderProduct orderProduct: order.getOrderProduct()){
+			if(orderProduct.getQuantity() > 0){
+				overallQuantity = orderProduct.getQuantity();
+				break;
+			}
+		}
+		if(overallQuantity == 0)
+			order.setOrderStatus(OrderStatus.EMPTY);
+		else
+			order.setOrderStatus(OrderStatus.READY);
+		entityManager.getTransaction().commit();
 	}
 
 	/**
@@ -112,23 +109,57 @@ public class OrderDao {
 	 *            contains command to change order
 	 */
 
-	private OrderProduct applyRequestCommand(OrderProduct orderProduct, OrderChangeRequest orderChangeRequest) {
+	private void applyRequestCommand(Order order, Product product, OrderChangeRequest orderChangeRequest) {
+		getTransaction();
+		List<OrderProduct> orderProducts = getOrderProductList(order, product);
+		int oldQuantity = getOldQuantity(orderProducts);
+		int newQuantity = 0;
 		switch (orderChangeRequest.getOrderCommand()) {
 		case REMOVE:
-			int newQuantity = Math.max(0, orderProduct.getQuantity() - orderChangeRequest.getQuantity());
-			orderProduct.setQuantity(newQuantity);
+			newQuantity = Math.max(0, oldQuantity - orderChangeRequest.getQuantity());
 			break;
 		case ADD:
-			orderProduct.setQuantity(orderProduct.getQuantity() + orderChangeRequest.getQuantity());
+			newQuantity = oldQuantity + orderChangeRequest.getQuantity();
 			break;
 		case SET:
-			orderProduct.setQuantity(orderChangeRequest.getQuantity());
+			newQuantity = orderChangeRequest.getQuantity();
 			break;
 		}
-		return orderProduct;
+		if(newQuantity == 0){
+			removeOrderProduct(order, product, orderProducts);
+		} else {
+			applyNewQuantity(order, product, orderProducts, newQuantity);
+		}
+		entityManager.getTransaction().commit();
+		entityManager.refresh(order);
+		entityManager.refresh(product);
 	}
 
-	private EntityTransaction createTransaction() {
+	private void removeOrderProduct(Order order, Product product, List<OrderProduct> orderProducts) {
+		for(OrderProduct orderProduct: orderProducts){
+			entityManager.remove(orderProduct);
+		}
+	}
+
+
+	private int getOldQuantity(List<OrderProduct> orderProducts) {
+		return orderProducts.isEmpty() ? 0 : orderProducts.get(0).getQuantity();
+	}
+
+	private void applyNewQuantity(Order order, Product product, List<OrderProduct> orderProducts, int newQuantity) {
+		if(orderProducts.isEmpty()){
+			OrderProduct orderProduct = new OrderProduct();
+			orderProduct.setOrder(order);
+			orderProduct.setProduct(product);
+			orderProduct.setQuantity(newQuantity);
+			entityManager.persist(orderProduct);
+		} else {
+			OrderProduct orderProduct = orderProducts.get(0);
+			orderProduct.setQuantity(newQuantity);
+		}
+	}
+
+	private EntityTransaction getTransaction() {
 		EntityManagerFactory entityManagerFactory = transactionManager.getEntityManagerFactory();
 		if (entityManager == null) {
 			entityManager = entityManagerFactory.createEntityManager();
@@ -149,7 +180,7 @@ public class OrderDao {
 	 * @return returns a submitted order
 	 */
 	public Order submitOrder(int orderId) {
-		createTransaction();
+		getTransaction();
 		Order order = entityManager.find(Order.class, orderId);
 
 		if (order.getOrderStatus().equals(OrderStatus.READY)) {
@@ -177,7 +208,6 @@ public class OrderDao {
 	 * @return returns a list of orders
 	 */
 	public List<Order> getOrderByStatus(OrderStatus[] orderStatus) {
-		createTransaction();
 		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
 		Root<Order> root = criteriaQuery.from(Order.class);
