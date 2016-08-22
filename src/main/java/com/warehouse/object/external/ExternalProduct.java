@@ -1,14 +1,22 @@
 package com.warehouse.object.external;
 
 public class ExternalProduct {
-	private String id;
+	private int id;
 	private String name;
 	private String description;
 	private int price;
-	public String getId() {
+	private boolean isActive;
+	
+	public boolean isActive() {
+		return isActive;
+	}
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+	public int getId() {
 		return id;
 	}
-	public void setId(String id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 	public String getName() {

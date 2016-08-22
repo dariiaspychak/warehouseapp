@@ -3,6 +3,7 @@ package com.warehouse.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -24,6 +25,16 @@ import com.warehouse.object.internal.Product;
 
 @Component
 public class OrderDao {
+	
+	@PostConstruct
+	public void initEntityManager(){
+		EntityManagerFactory entityManagerFactory = transactionManager.getEntityManagerFactory();
+		if (entityManager == null) {
+			entityManager = entityManagerFactory.createEntityManager();
+			entityManager.setFlushMode(FlushModeType.AUTO);
+		}
+	}
+	
 	@Autowired
 	private JpaTransactionManager transactionManager;
 	/**
@@ -160,11 +171,6 @@ public class OrderDao {
 	}
 
 	private EntityTransaction getTransaction() {
-		EntityManagerFactory entityManagerFactory = transactionManager.getEntityManagerFactory();
-		if (entityManager == null) {
-			entityManager = entityManagerFactory.createEntityManager();
-			entityManager.setFlushMode(FlushModeType.AUTO);
-		}
 		EntityTransaction transaction = entityManager.getTransaction();
 		if (!transaction.isActive()) {
 			transaction.begin();

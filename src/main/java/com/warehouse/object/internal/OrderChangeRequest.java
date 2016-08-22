@@ -2,23 +2,23 @@ package com.warehouse.object.internal;
 
 
 public class OrderChangeRequest {
-	private String productId;
+	private int productId;
 	private int quantity;
 	private OrderCommand orderCommand;
 	
 	public OrderChangeRequest() {
 	}
 
-	public OrderChangeRequest(String productId, int quantity, OrderCommand orderCommand) {
+	public OrderChangeRequest(int productId, int quantity, OrderCommand orderCommand) {
 		this.productId = productId;
 		this.quantity = quantity;
 		this.orderCommand = orderCommand;
 	}
 	
-	public String getProductId() {
+	public int getProductId() {
 		return productId;
 	}
-	public void setProductId(String productId) {
+	public void setProductId(int productId) {
 		this.productId = productId;
 	}
 	public int getQuantity() {

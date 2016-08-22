@@ -58,11 +58,33 @@ public class Service {
 		return externalOrder;
 	}
 	
-	public Product addNewProduct(String name, String description, int price){
-		return productDao.addNewProduct(name, description, price);
+	private ExternalProduct convertInternalToExternalProduct(Product product){
+		ExternalProduct externalProduct = new ExternalProduct();
+		externalProduct.setId(product.getProductId());
+		externalProduct.setDescription(product.getDescription());
+		externalProduct.setName(product.getName());
+		externalProduct.setPrice(product.getPrice());
+		externalProduct.setActive(product.isActive());
+		return externalProduct;
 	}
 	
-	public void removeProduct(String productId){
-		productDao.removeProduct(productId);
+	public ExternalProduct addNewProduct(String name, String description, int price, boolean isActive){
+		return convertInternalToExternalProduct(productDao.addNewProduct(name, description, price, isActive));
+	}
+	
+	public void deactivateProduct(int productId){
+		productDao.deactivateProduct(productId);
+	}
+	
+	public void activateProduct(int productId){
+		productDao.activateProduct(productId);
+	}
+	
+	public ExternalProduct getProductById(int productId){
+		return convertInternalToExternalProduct(productDao.getProductById(productId));
+	}
+	
+	public ExternalProduct getActiveProductById(int productId){
+		return convertInternalToExternalProduct(productDao.getActiveProductById(productId));
 	}
 }

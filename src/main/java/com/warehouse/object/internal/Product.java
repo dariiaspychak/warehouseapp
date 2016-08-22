@@ -12,14 +12,14 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.GenericGenerator;
-
 @Entity(name="products")
 @Table(name="products")
 public class Product {
-	private String id;
+	private int productId;
 	private String name;
 	private String description;
+	private boolean isActive;
+	
 	private int price;
 	
 	private Set<OrderProduct> orderProduct = new HashSet<OrderProduct>(0);
@@ -27,10 +27,19 @@ public class Product {
 	public Product() {
 	}
 
-	public Product(String name, String description, int price) {
+	public Product(String name, String description, int price, boolean isActive) {
 		this.name = name;
 		this.description = description;
 		this.price = price;
+		this.isActive = isActive;
+	}
+	
+	public Product(int productId, String name, String description, int price, boolean isActive) {
+		this.productId = productId;
+		this.name = name;
+		this.description = description;
+		this.price = price;
+		this.isActive = isActive;
 	}
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "product", cascade = CascadeType.MERGE)
@@ -43,14 +52,13 @@ public class Product {
 	}
 	
 	@Id
-	@GeneratedValue(generator="uuid")
-	@GenericGenerator(name="uuid", strategy = "uuid")
+	@GeneratedValue
 	@Column(name = "product_id")
-	public String getId() {
-		return id;
+	public int getProductId() {
+		return productId;
 	}
-	public void setId(String id) {
-		this.id = id;
+	public void setProductId(int productId) {
+		this.productId = productId;
 	}
 	@Column(name = "name")
 	public String getName() {
@@ -72,6 +80,13 @@ public class Product {
 	}
 	public void setPrice(int price) {
 		this.price = price;
+	}	
+	@Column(name = "is_active")
+	public boolean isActive() {
+		return isActive;
+	}
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
 	}
 	
 

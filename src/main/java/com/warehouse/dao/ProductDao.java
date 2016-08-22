@@ -32,22 +32,48 @@ public class ProductDao {
 	}
 
 
-	public Product addNewProduct(String name, String description, int price) {
+	public Product addNewProduct(String name, String description, int price, boolean isActive) {
 		createTransaction();
-		Product product = new Product(name, description, price);
+		Product product = new Product(name, description, price, isActive);
 		entityManager.persist(product);
 		entityManager.getTransaction().commit();
 		return product;
 	}
-	
-	public void removeProduct(String productId){
+
+	public Product getProductById(int productId) {
+		return entityManager.find(Product.class, productId);
+	}
+
+
+	public void deactivateProduct(int productId) {
 		createTransaction();
 		Product product = getProductById(productId);
-		entityManager.remove(product);
+		if (product.isActive()){
+			product.setActive(false);
+			entityManager.merge(product);
+		}
+		entityManager.getTransaction().commit();
+	}
+	
+	public void activateProduct(int productId) {
+		createTransaction();
+		Product product = getProductById(productId);
+		if (!product.isActive()){
+			product.setActive(true);
+			entityManager.merge(product);
+		}
 		entityManager.getTransaction().commit();
 	}
 
-	private Product getProductById(String productId) {
-		return entityManager.find(Product.class, productId);
+	public Product getActiveProductById(int productId) {
+		Product product = getProductById(productId);
+		if (product.isActive()){
+			return product;
+		}
+		else{
+			throw new RuntimeException("Product with ID [" + productId + "] is not active.");
+		}
 	}
+	
+	
 }

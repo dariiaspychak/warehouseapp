@@ -1,8 +1,6 @@
 package com.warehouse.controller;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,15 +46,8 @@ public class OrderingController {
 	}	
 	
 	private ExternalOrderStatus convertStringToOrderStatus(String orderStatus) {
-		Map<String, ExternalOrderStatus> orderStatusMap = new HashMap<String, ExternalOrderStatus>();
-		orderStatusMap.put("open", ExternalOrderStatus.OPEN);
-		orderStatusMap.put("received", ExternalOrderStatus.RECEIVED);
-		orderStatusMap.put("processing", ExternalOrderStatus.PROCESSING);
-		orderStatusMap.put("delivery", ExternalOrderStatus.DELIVERY);
-		orderStatusMap.put("delivered", ExternalOrderStatus.DELIVERED);
-		orderStatusMap.put("canceled", ExternalOrderStatus.CANCELLED);
 		
-		return orderStatusMap.get(orderStatus);
+		return ExternalOrderStatus.valueOf(orderStatus.toUpperCase());
 	}
 
 	@RequestMapping(value = "/test")

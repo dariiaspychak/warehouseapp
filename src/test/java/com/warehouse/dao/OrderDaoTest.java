@@ -60,7 +60,7 @@ public class OrderDaoTest extends TestCase {
 	@Test
 	public void testChangeOrder(){
 		createTransaction();
-		Product product = new Product("chicken", "meat", 4);
+		Product product = new Product("chicken", "meat", 4, true);
 				
 		Order order = new Order();
 		order.setOrderStatus(OrderStatus.EMPTY);
@@ -68,7 +68,7 @@ public class OrderDaoTest extends TestCase {
 		entityManager.persist(order);
 		
 		//Setting data for checking SET command. Checking that quantity changed to 3 
-		OrderChangeRequest orderChangeRequestSet = new OrderChangeRequest(product.getId(), 3, OrderCommand.SET );
+		OrderChangeRequest orderChangeRequestSet = new OrderChangeRequest(product.getProductId(), 3, OrderCommand.SET );
 		
 		entityManager.getTransaction().commit();
 		orderDaoUnderTest.changeOrder(order.getId(), orderChangeRequestSet);
@@ -80,14 +80,14 @@ public class OrderDaoTest extends TestCase {
 		assertEquals(3, orderProduct.getQuantity());
 		assertEquals(OrderStatus.READY, order.getOrderStatus());
 		
-		assertEquals(orderProduct.getProduct().getId(), product.getId());
+		assertEquals(orderProduct.getProduct().getProductId(), product.getProductId());
 		assertEquals(orderProduct.getProduct().getName(), product.getName());
 		assertEquals(orderProduct.getProduct().getDescription(), product.getDescription());
 		assertEquals(orderProduct.getProduct().getPrice(), product.getPrice());
 		assertEquals(orderProduct.getOrder().getId(), order.getId());
 		
 		//ADD command. Checking that quantity of products in oprderProduct increased by 2
-		OrderChangeRequest orderChangeRequestAdd = new OrderChangeRequest(product.getId(), 2, OrderCommand.ADD);
+		OrderChangeRequest orderChangeRequestAdd = new OrderChangeRequest(product.getProductId(), 2, OrderCommand.ADD);
 		
 		orderDaoUnderTest.changeOrder(order.getId(), orderChangeRequestAdd);
 		entityManager.refresh(orderProduct);
@@ -97,7 +97,7 @@ public class OrderDaoTest extends TestCase {
 		assertEquals(OrderStatus.READY, order.getOrderStatus());
 		
 		//REMOVE command. Checking that quantity of products in oprderProduct decreased by 3
-		OrderChangeRequest orderChangeRequestRemoveFirst = new OrderChangeRequest(product.getId(), 3, OrderCommand.REMOVE);
+		OrderChangeRequest orderChangeRequestRemoveFirst = new OrderChangeRequest(product.getProductId(), 3, OrderCommand.REMOVE);
 		
 		orderDaoUnderTest.changeOrder(order.getId(), orderChangeRequestRemoveFirst);
 		entityManager.refresh(orderProduct);
@@ -107,7 +107,7 @@ public class OrderDaoTest extends TestCase {
 		assertEquals(OrderStatus.READY, order.getOrderStatus());
 		
 		//REMOVE command. Checking that quantity of products in oprderProduct decreased to 0 in case of quantity value that higher than current 
-		OrderChangeRequest orderChangeRequestRemoveSecond = new OrderChangeRequest(product.getId(), 3, OrderCommand.REMOVE);
+		OrderChangeRequest orderChangeRequestRemoveSecond = new OrderChangeRequest(product.getProductId(), 3, OrderCommand.REMOVE);
 		
 		orderDaoUnderTest.changeOrder(order.getId(), orderChangeRequestRemoveSecond);
 		entityManager.refresh(order);
@@ -120,12 +120,12 @@ public class OrderDaoTest extends TestCase {
 	public void testSubmitOrder(){
 		createTransaction();
 		Order order = orderDaoUnderTest.createOrder();
-		Product product = new Product("water", "drink", 5);	
+		Product product = new Product("water", "drink", 5, true);	
 			
 		entityManager.persist(product);
 		entityManager.getTransaction().commit();
 
-		OrderChangeRequest orderChangeRequest = new OrderChangeRequest(product.getId(), 3, OrderCommand.SET);
+		OrderChangeRequest orderChangeRequest = new OrderChangeRequest(product.getProductId(), 3, OrderCommand.SET);
 		int orderId = order.getId();
 		orderDaoUnderTest.changeOrder(orderId, orderChangeRequest);
 		
