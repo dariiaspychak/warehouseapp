@@ -1,5 +1,6 @@
 package com.warehouse.dao;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -14,6 +15,24 @@ import com.warehouse.object.internal.Product;
 
 @Component
 public class ProductDao {
+	
+	@PostConstruct
+	public void initEntityManager(){
+		EntityManagerFactory entityManagerFactory = transactionManager.getEntityManagerFactory();
+		if (entityManager == null) {
+			entityManager = entityManagerFactory.createEntityManager();
+			entityManager.setFlushMode(FlushModeType.AUTO);
+		}
+	}
+	
+	private EntityTransaction getTransaction() {
+		EntityTransaction transaction = entityManager.getTransaction();
+		if (!transaction.isActive()) {
+			transaction.begin();
+		}
+		return transaction;
+	}
+	
 	@Autowired
 	private JpaTransactionManager transactionManager;
 	/**
@@ -21,19 +40,8 @@ public class ProductDao {
 	 */
 	private EntityManager entityManager;
 	
-
-	private EntityTransaction createTransaction() {
-		EntityManagerFactory entityManagerFactory = transactionManager.getEntityManagerFactory();
-		entityManager = entityManagerFactory.createEntityManager();
-		entityManager.setFlushMode(FlushModeType.AUTO);
-		EntityTransaction transaction = entityManager.getTransaction();
-		transaction.begin();
-		return transaction;
-	}
-
-
-	public Product addNewProduct(String name, String description, int price, boolean isActive) {
-		createTransaction();
+	public Product createProduct(String name, String description, int price, boolean isActive) {
+		getTransaction();
 		Product product = new Product(name, description, price, isActive);
 		entityManager.persist(product);
 		entityManager.getTransaction().commit();
@@ -46,7 +54,7 @@ public class ProductDao {
 
 
 	public void deactivateProduct(int productId) {
-		createTransaction();
+		getTransaction();
 		Product product = getProductById(productId);
 		if (product.isActive()){
 			product.setActive(false);
@@ -56,7 +64,7 @@ public class ProductDao {
 	}
 	
 	public void activateProduct(int productId) {
-		createTransaction();
+		getTransaction();
 		Product product = getProductById(productId);
 		if (!product.isActive()){
 			product.setActive(true);

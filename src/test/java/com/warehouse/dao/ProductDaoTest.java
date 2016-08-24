@@ -45,7 +45,7 @@ public class ProductDaoTest extends TestCase {
 	
 	@Test
 	public void addNewProductTest(){
-		Product product = productDaoUnderTest.addNewProduct("pork", "meat", 3, true);
+		Product product = productDaoUnderTest.createProduct("pork", "meat", 3, true);
 		
 		createTransaction();
 		Product addedProduct = entityManager.find(Product.class, product.getProductId());
@@ -60,7 +60,7 @@ public class ProductDaoTest extends TestCase {
 	
 	@Test
 	public void activateProductTest(){
-		Product product = productDaoUnderTest.addNewProduct("pork", "meat", 3, false);
+		Product product = productDaoUnderTest.createProduct("pork", "meat", 3, false);
 		productDaoUnderTest.activateProduct(product.getProductId());
 		
 		createTransaction();
@@ -71,7 +71,7 @@ public class ProductDaoTest extends TestCase {
 	
 	@Test
 	public void deactivateProductTest(){
-		Product product = productDaoUnderTest.addNewProduct("pork", "meat", 3, true);
+		Product product = productDaoUnderTest.createProduct("pork", "meat", 3, true);
 		productDaoUnderTest.deactivateProduct(product.getProductId());
 		
 		createTransaction();
@@ -87,7 +87,7 @@ public class ProductDaoTest extends TestCase {
 	    exception.expect(RuntimeException.class);
 	    exception.expectMessage("Product with ID [1] is not active.");
 
-	    productDaoUnderTest.addNewProduct("pork", "meat", 3, false);
+	    productDaoUnderTest.createProduct("pork", "meat", 3, false);
 	    
 	    productDaoUnderTest.getActiveProductById(1);
 	}

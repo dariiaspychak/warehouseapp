@@ -201,7 +201,7 @@ public class OrderDao {
 		return order;
 	}
 
-	public Order getOrderById(int orderId) {
+	public Order getOrder(int orderId) {
 		Order order = entityManager.find(Order.class, orderId);
 		return order;
 	}
@@ -213,7 +213,7 @@ public class OrderDao {
 	 *            array with order status
 	 * @return returns a list of orders
 	 */
-	public List<Order> getOrderByStatus(OrderStatus[] orderStatus) {
+	public List<Order> getOrders(OrderStatus[] orderStatus) {
 		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Order> criteriaQuery = criteriaBuilder.createQuery(Order.class);
 		Root<Order> root = criteriaQuery.from(Order.class);
