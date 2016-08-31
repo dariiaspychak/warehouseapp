@@ -62,11 +62,11 @@ public class Service {
 		productDao.activateProduct(productId);
 	}
 	
-	public ExternalProduct getProductById(int productId){
-		return ConversionUtility.convert(productDao.getProductById(productId));
+	public ExternalProduct getProduct(int productId){
+		return ConversionUtility.convert(productDao.getProduct(productId));
 	}
 	
-	public ExternalProduct getActiveProductById(int productId){
-		return ConversionUtility.convert(productDao.getActiveProductById(productId));
+	public ExternalProduct getActiveProducts(int productId){
+		return ConversionUtility.convert(productDao.getActiveProducts(productId));
 	}
 }

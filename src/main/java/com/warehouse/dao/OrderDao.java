@@ -22,6 +22,7 @@ import com.warehouse.object.internal.OrderChangeRequest;
 import com.warehouse.object.internal.OrderProduct;
 import com.warehouse.object.internal.OrderStatus;
 import com.warehouse.object.internal.Product;
+import com.warehouse.service.InvalidOperationException;
 
 @Component
 public class OrderDao {
@@ -192,8 +193,12 @@ public class OrderDao {
 		if (order.getOrderStatus().equals(OrderStatus.READY)) {
 			order.setOrderStatus(OrderStatus.SUBMITTED);
 		} else {
-			throw new RuntimeException("Wrong order status. Current status is - [" + order.getOrderStatus()
-					+ "], expected - [" + OrderStatus.READY + "]");
+			InvalidOperationException exception = new InvalidOperationException();
+			
+			String message = String.format("Wrong order status. Current status is - [%s], expected - [%s]", order.getOrderStatus(), OrderStatus.READY);
+			exception.setAction("submit").setObjectType("order").setThrowingMethod("submitOrder")
+					.setMessage(message).setParameters(new Object[]{orderId});
+			throw exception;
 		}
 		entityManager.persist(order);
 		entityManager.getTransaction().commit();

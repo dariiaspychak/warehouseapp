@@ -48,14 +48,14 @@ public class ProductDao {
 		return product;
 	}
 
-	public Product getProductById(int productId) {
+	public Product getProduct(int productId) {
 		return entityManager.find(Product.class, productId);
 	}
 
 
 	public void deactivateProduct(int productId) {
 		getTransaction();
-		Product product = getProductById(productId);
+		Product product = getProduct(productId);
 		if (product.isActive()){
 			product.setActive(false);
 			entityManager.merge(product);
@@ -65,7 +65,7 @@ public class ProductDao {
 	
 	public void activateProduct(int productId) {
 		getTransaction();
-		Product product = getProductById(productId);
+		Product product = getProduct(productId);
 		if (!product.isActive()){
 			product.setActive(true);
 			entityManager.merge(product);
@@ -73,8 +73,8 @@ public class ProductDao {
 		entityManager.getTransaction().commit();
 	}
 
-	public Product getActiveProductById(int productId) {
-		Product product = getProductById(productId);
+	public Product getActiveProducts(int productId) {
+		Product product = getProduct(productId);
 		if (product.isActive()){
 			return product;
 		}
