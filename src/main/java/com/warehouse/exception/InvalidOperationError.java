@@ -1,4 +1,4 @@
-package com.warehouse.object.external;
+package com.warehouse.exception;
 
 public class InvalidOperationError {
 	private String message;
@@ -22,5 +22,4 @@ public class InvalidOperationError {
 	public void setObjectType(String objectType) {
 		this.objectType = objectType;
 	}
-
 }

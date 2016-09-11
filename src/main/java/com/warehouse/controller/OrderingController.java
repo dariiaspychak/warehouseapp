@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.warehouse.object.external.ExternalOrder;
 import com.warehouse.object.external.ExternalOrderStatus;
 import com.warehouse.object.internal.OrderChangeRequest;
-import com.warehouse.service.Service;
+import com.warehouse.service.OrderService;
 
 @RestController
 public class OrderingController {
 	
 	@Autowired
-	private Service service;
+	private OrderService service;
 
 	@RequestMapping(value = "/order/new", method = RequestMethod.POST )
 	public ExternalOrder createOrder() {

@@ -89,6 +89,6 @@ public class ProductDaoTest extends TestCase {
 
 	    productDaoUnderTest.createProduct("pork", "meat", 3, false);
 	    
-	    productDaoUnderTest.getActiveProducts(1);
+	    productDaoUnderTest.getActiveProduct(1);
 	}
 }

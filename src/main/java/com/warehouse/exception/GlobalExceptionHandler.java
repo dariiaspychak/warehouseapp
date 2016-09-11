@@ -1,13 +1,10 @@
-package com.warehouse;
+package com.warehouse.exception;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import com.warehouse.object.external.InvalidOperationError;
-import com.warehouse.service.InvalidOperationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

@@ -1,4 +1,4 @@
-package com.warehouse.service;
+package com.warehouse.exception;
 
 public class InvalidOperationException extends RuntimeException {
 	
@@ -6,11 +6,14 @@ public class InvalidOperationException extends RuntimeException {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
 	private String throwingMethod;
 	private Object[] parameters;
 	private String message;
 	private String objectType;
 	private String action;
+	
+	
 	public String getThrowingMethod() {
 		return throwingMethod;
 	}

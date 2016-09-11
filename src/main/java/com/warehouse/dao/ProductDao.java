@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.stereotype.Component;
 
+import com.warehouse.exception.InvalidOperationException;
 import com.warehouse.object.internal.Product;
 
 
@@ -73,13 +74,16 @@ public class ProductDao {
 		entityManager.getTransaction().commit();
 	}
 
-	public Product getActiveProducts(int productId) {
+	public Product getActiveProduct(int productId) {
 		Product product = getProduct(productId);
 		if (product.isActive()){
 			return product;
 		}
 		else{
-			throw new RuntimeException("Product with ID [" + productId + "] is not active.");
+			InvalidOperationException exception = new InvalidOperationException();
+			String message = String.format("Product with ID [%s] is not active.", productId);
+			exception.setAction("getActiveProduct").setObjectType("product").setThrowingMethod("getActiveProduct").setMessage(message).setParameters(new Object[]{productId});
+			throw exception;
 		}
 	}
 	

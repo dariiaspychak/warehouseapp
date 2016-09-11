@@ -17,12 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.stereotype.Component;
 
+import com.warehouse.exception.InvalidOperationException;
 import com.warehouse.object.internal.Order;
 import com.warehouse.object.internal.OrderChangeRequest;
 import com.warehouse.object.internal.OrderProduct;
 import com.warehouse.object.internal.OrderStatus;
 import com.warehouse.object.internal.Product;
-import com.warehouse.service.InvalidOperationException;
 
 @Component
 public class OrderDao {
@@ -106,10 +106,12 @@ public class OrderDao {
 				break;
 			}
 		}
-		if(overallQuantity == 0)
+		if(overallQuantity == 0){
 			order.setOrderStatus(OrderStatus.EMPTY);
-		else
+		}
+		else{
 			order.setOrderStatus(OrderStatus.READY);
+		}
 		entityManager.getTransaction().commit();
 	}
 
@@ -208,7 +210,16 @@ public class OrderDao {
 
 	public Order getOrder(int orderId) {
 		Order order = entityManager.find(Order.class, orderId);
-		return order;
+		if (order != null){
+			return order;
+		}
+		else{
+			InvalidOperationException exception = new InvalidOperationException();
+			String message = String.format("Order with ID [%s] does not exist.", orderId);
+			exception.setAction("getOrder").setObjectType("order").setThrowingMethod("getOrder").setMessage(message).setParameters(new Object[]{orderId});
+			throw exception;
+		}
+		
 	}
 
 	/**
